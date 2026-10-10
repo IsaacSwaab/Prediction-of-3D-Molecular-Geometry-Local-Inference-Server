@@ -30,9 +30,8 @@ ELEMENT_COLORS = {"H": "#d9d9d9", "C": "#303030", "N": "#3050F8",
 ELEMENT_SIZES = {"H": 5, "C": 9, "N": 9, "O": 9, "F": 8}
 
 
-# ----------------------------------------------------------------------
+
 # Low-level trace builders
-# ----------------------------------------------------------------------
 
 def _unique_bonds(edge_index):
     """Undirected unique bond list from a    edge_index."""
@@ -119,10 +118,8 @@ gd.on('plotly_relayout', function(ed) {
 """
 
 
-# ----------------------------------------------------------------------
-# Public: build a figure (1-panel or 3-panel)
-# ----------------------------------------------------------------------
 
+# Public: build a figure (1-panel or 3-panel)
 def build_prediction_figure(pred_pos, z, edge_index, title,
                             target_pos=None, per_atom_err=None,
                             color_by_error=True, shown_draw=None,

@@ -68,11 +68,8 @@ NOISE_SCALE = cfg["noise_scale"]
 DEFAULT_NUM_DRAWS = cfg["num_pos_init_draws"]
 
 
-# ----------------------------------------------------------------------
-# Optional QM9 dataset (lazily loaded only if the verification endpoint
-# is enabled -- the prediction-only path has no QM9 dependency).
-# ----------------------------------------------------------------------
 
+# Optional QM9 dataset the prediction-only path has no QM9 dependency).
 QM9_DATASET = None
 if os.environ.get("EGNN_ENABLE_QM9") == "1":
     from torch_geometric.datasets import QM9
@@ -81,9 +78,9 @@ if os.environ.get("EGNN_ENABLE_QM9") == "1":
     print(f"  QM9 loaded: {len(QM9_DATASET)} molecules.")
 
 
-# ----------------------------------------------------------------------
+
 # Inference helpers
-# ----------------------------------------------------------------------
+
 
 @torch.no_grad()
 def _run_k_draws(z, edge_index, edge_attr, num_draws):
@@ -175,9 +172,9 @@ def _select_draw(aligned, visual_draw, z, edge_index, edge_attr):
     return aligned[0], "draw 0", None
 
 
-# ----------------------------------------------------------------------
+
 # FastAPI app
-# ----------------------------------------------------------------------
+
 
 app = FastAPI(
     title="EGNN QM9 Local Inference Server",
@@ -188,9 +185,7 @@ app = FastAPI(
 )
 
 
-# ----------------------------------------------------------------------
 # Request/response schemas
-# ----------------------------------------------------------------------
 
 class PredictRequest(BaseModel):
     smiles: str = Field(..., description="SMILES string (H, C, N, O, F only)")
@@ -206,7 +201,6 @@ class PredictResponse(BaseModel):
     num_draws: int
     latency_ms: float
     xyz: str
-
 
 class PredictVisualRequest(BaseModel):
     smiles: str = Field(..., description="SMILES (H, C, N, O, F only)")
@@ -224,9 +218,9 @@ class PredictVisualRequest(BaseModel):
     )
 
 
-# ----------------------------------------------------------------------
+
 # JSON endpoints
-# ----------------------------------------------------------------------
+
 
 @app.get("/health")
 def health():
@@ -323,9 +317,9 @@ def predict_draws(req: PredictVisualRequest):
     }
 
 
-# ----------------------------------------------------------------------
+
 # Visual endpoints (return standalone interactive HTML)
-# ----------------------------------------------------------------------
+
 
 @app.post("/predict_visual", response_class=HTMLResponse)
 def predict_visual(req: PredictVisualRequest):
@@ -422,9 +416,8 @@ def predict_visual_qm9(qm9_index: int, num_draws: int = DEFAULT_NUM_DRAWS):
     return HTMLResponse(figure_to_html(fig))
 
 
-# ----------------------------------------------------------------------
 # Minimal HTML front-end at /
-# ----------------------------------------------------------------------
+
 
 INDEX_HTML = """
 <!DOCTYPE html>
@@ -548,10 +541,8 @@ def index():
     return INDEX_HTML
 
 
-# ----------------------------------------------------------------------
-# Entry point
-# ----------------------------------------------------------------------
 
+# Entry point
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host=HOST, port=PORT)

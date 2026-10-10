@@ -91,10 +91,8 @@ ELEMENT_COLORS = {"H": "#d9d9d9", "C": "#303030", "N": "#3050F8", "O": "#FF0D0D"
 ELEMENT_SIZES = {"H": 5, "C": 9, "N": 9, "O": 9, "F": 8}
 
 
-# ----------------------------------------------------------------------
-# Loading: checkpoint, model, dataset splits
-# ----------------------------------------------------------------------
 
+# Loading: checkpoint, model, dataset splits
 def load_checkpoint(checkpoint_path, fallback_config):
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     if isinstance(ckpt, dict) and "model_state_dict" in ckpt:
@@ -105,8 +103,6 @@ def load_checkpoint(checkpoint_path, fallback_config):
 
 
 def build_model(train_config, state_dict, device):
-    # A missing B.1/B.2/B.4 key means the checkpoint predates that feature,
-    # so it was trained WITHOUT it -> default to False (not True).
     model = EGNN(
         num_layers=train_config["num_layers"], hidden_dim=train_config["hidden_dim"],
         edge_attr_dim=train_config.get("edge_attr_dim", 4),
@@ -451,10 +447,8 @@ def render_molecule(model, data, name, train_config, K, device, output_dir,
     return result, path
 
 
-# ----------------------------------------------------------------------
-# Entry point
-# ----------------------------------------------------------------------
 
+# Entry point
 def main():
     random.seed(CONFIG["seed"])
     device = CONFIG["device"] or ("cuda" if torch.cuda.is_available() else "cpu")

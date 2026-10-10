@@ -30,9 +30,8 @@ from Util.visualise import Z_TO_SYMBOL
 from egnn_inference import build_triplets
 
 
-# ----------------------------------------------------------------------
+
 # Reference values: typical bond lengths in organic molecules
-# ----------------------------------------------------------------------
 
 # (symbol_a, symbol_b, bond_type_index) -> mean length in Angstrom
 # bond_type_index: 0=single, 1=double, 2=triple, 3=aromatic

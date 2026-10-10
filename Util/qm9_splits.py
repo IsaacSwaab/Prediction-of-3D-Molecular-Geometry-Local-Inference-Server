@@ -213,10 +213,8 @@ def resolve_splits(full_dataset, subset_size=10000, subset_sampling="first",
     return indices, {"pool": pool, "features": features}
 
 
-# ----------------------------------------------------------------------
-# Loading molecules and reporting
-# ----------------------------------------------------------------------
 
+# Loading molecules and reporting
 class LazySplit:
     """Sequence of QM9 molecules for a list of global indices. Molecules are
     fetched on access (fresh Data object each time) and carry `.qm9_index`,
@@ -265,10 +263,8 @@ def print_split_balance(indices, info, stratify_by=None):
             print(f"    {v:>3}:  train {row[0]:6.2f}   val {row[1]:6.2f}   test {row[2]:6.2f}")
 
 
-# ----------------------------------------------------------------------
-# Standalone: compare split methods on your own data
-# ----------------------------------------------------------------------
 
+# Standalone: compare split methods on your own data
 CONFIG = {
     "root": "./data/QM9",
     "subset_size": 10000,          # None -> full QM9

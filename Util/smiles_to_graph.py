@@ -98,9 +98,8 @@ def smiles_to_graph(smiles: str):
     return z, edge_index, edge_attr, mol
 
 
-# ----------------------------------------------------------------------
+
 # Verification
-# ----------------------------------------------------------------------
 
 def verify_against_qm9(smiles: str, qm9_index: int, qm9_root: str = "./data/QM9"):
     """

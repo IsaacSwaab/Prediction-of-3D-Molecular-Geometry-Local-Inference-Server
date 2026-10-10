@@ -72,10 +72,7 @@ CSV_COLUMNS = ["split", "split_index", "qm9_index", "name", "smiles", "num_atoms
                "single_draw_angle_mae_deg_mean", "single_draw_sym_break_mean", "draw_spread"]
 
 
-# ----------------------------------------------------------------------
 # Scoring
-# ----------------------------------------------------------------------
-
 def score_split(model, molecules, split, train_config, K, device, seed, limit=None):
     rows = []
     n = len(molecules) if limit is None else min(limit, len(molecules))

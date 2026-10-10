@@ -436,7 +436,7 @@ with open("isopropanol.html", "w") as f:
 - **Latency per request** is dominated by K forward passes. On a GPU
   (RTX 2070-class), a QM9-sized molecule takes ~100–400 ms for K=4–8
   draws. On CPU, expect 1–3 seconds per draw.
-- **Memory** is small; the model is ~12 MB of weights, and each forward
+- **Memory** is small; the model is ~36 MB of weights, and each forward
   pass fits comfortably in VRAM even on modest GPUs.
 - **Throughput** is one request at a time by default (single uvicorn
   worker). For concurrent traffic, run multiple uvicorn workers or add
@@ -483,26 +483,6 @@ retraining.
 **LAN access doesn't work:** check (a) the server is bound to `0.0.0.0`
 via `EGNN_HOST`, (b) the firewall allows port 8000, (c) both machines
 are on the same network, (d) you're using the LAN IP not `localhost`.
-
----
-
-## What's not included (and why)
-
-- **No Docker.** Docker is a deployment tool, not an inference tool. Add
-  it later if you need reproducible deployment.
-- **No authentication.** The server binds to `127.0.0.1` by default, so
-  there's nothing to authenticate. Add it if exposing on `0.0.0.0` on an
-  untrusted network.
-- **No batching.** Each request is handled serially. Add a request queue
-  or multiple uvicorn workers if you need concurrent throughput.
-- **No persistent logging.** Requests aren't written to disk. Add
-  middleware if you need request history.
-- **No model versioning.** The server loads one checkpoint at startup.
-  Restart to change checkpoints; add a `/reload` endpoint if you need
-  hot-swapping.
-
-These are all straightforward to add when the need arises. For a local
-demo or personal-use inference server, none are worth the complexity.
 
 ---
 

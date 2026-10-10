@@ -21,7 +21,7 @@ from torch_geometric.utils import softmax as pyg_softmax
 
 
 # ----------------------------------------------------------------------
-# Model building blocks
+# Model
 # ----------------------------------------------------------------------
 
 class MLP(nn.Module):
@@ -125,10 +125,7 @@ def build_triplets(edge_index, num_nodes):
     return perm[row_sorted_idx], perm[col_sorted_idx]
 
 
-# ----------------------------------------------------------------------
 # EGNN layer and full model
-# ----------------------------------------------------------------------
-
 class EGNNLayer(nn.Module):
     """One equivariant message-passing layer. See training script for details."""
 

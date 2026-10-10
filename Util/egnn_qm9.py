@@ -85,7 +85,7 @@ from Util.qm9_splits import resolve_splits, load_split_data, print_split_balance
 
 
 # ----------------------------------------------------------------------
-# 0. CONFIG — edit these and just hit "Run" (no command-line flags needed)
+# 0. CONFIG — edit these and just hit "Run" 
 # ----------------------------------------------------------------------
 
 CONFIG = {
@@ -149,9 +149,8 @@ CONFIG = {
 }
 
 
-# ----------------------------------------------------------------------
+
 # 1. EGNN LAYER
-# ----------------------------------------------------------------------
 
 class MLP(nn.Module):
     """Small 2-layer MLP used inside phi_e / phi_x / phi_h / attention heads."""
@@ -513,10 +512,8 @@ def kabsch_rmsd_loss(pred, target, batch):
     return per_graph_mse.sqrt().mean()
 
 
-# ----------------------------------------------------------------------
-# 2b. ADDITIONAL METRICS AND LOSS TERMS
-# ----------------------------------------------------------------------
 
+# 2b. ADDITIONAL METRICS AND LOSS TERMS
 @torch.no_grad()
 def compute_baselines(loader_or_list, device):
     total_centroid, total_random, n = 0.0, 0.0, 0
@@ -613,23 +610,6 @@ def symmetry_break_loss(pred, edge_index, min_dist=1.0):
     center being closer than `min_dist`. Directly targets the symmetry
     collapse failure mode (CH2/CH3 hydrogens predicted at the same point).
 
-    Why a distance barrier and not another angle loss:
-      bond_angle_loss compares cos(predicted angle) to cos(true angle).
-      At exact collapse the angle is 0, cos(angle) = 1, and cos is
-      STATIONARY there -- its gradient w.r.t. either atom's position is
-      exactly zero. So the angle loss has a high VALUE at collapse but
-      ZERO GRADIENT: gradient descent cannot escape, regardless of how
-      large angle_loss_weight is set. This matches what was observed
-      empirically (symmetric groups collapse even with angle loss on).
-
-      The distance barrier's gradient does NOT vanish at collapse:
-      for two atoms at distance d < min_dist, the gradient of
-      relu(min_dist - d) has magnitude 1 (a unit vector pointing away
-      from the other atom), independent of how small d is. So the
-      barrier can push atoms apart from the collapsed configuration,
-      after which the angle and RMSD losses (whose gradients are
-      non-zero away from exact collapse) can take over.
-
     Threshold choice:
       Real H-H in a CH2 is ~1.8 A; real C-C-C in cyclopropane is ~1.5 A.
       min_dist=1.0 A is a loose safety threshold that catches true
@@ -650,10 +630,8 @@ def symmetry_break_loss(pred, edge_index, min_dist=1.0):
     return torch.relu(min_dist - d).mean()
 
 
-# ----------------------------------------------------------------------
-# 3. EQUIVARIANCE + KABSCH UNIT TESTS
-# ----------------------------------------------------------------------
 
+# 3. EQUIVARIANCE + KABSCH UNIT TESTS
 def random_rotation_matrix(device, dtype):
     A = torch.randn(3, 3, device=device, dtype=dtype)
     Q, R = torch.linalg.qr(A)
@@ -732,63 +710,16 @@ def test_kabsch_loss(num_nodes=10, seed=0):
     print("PASSED: Kabsch loss correctly recognizes rotated copies as perfect matches.")
 
 
-# ----------------------------------------------------------------------
-# 4. INITIAL COORDINATE GUESS
-# ----------------------------------------------------------------------
 
+# 4. INITIAL COORDINATE GUESS
 def add_noise_initial_coords(pos, scale=1.5):
     return torch.randn_like(pos) * scale
 
 
-# ----------------------------------------------------------------------
-# 4b. OPTIONAL RDKIT INITIALISER
-# ----------------------------------------------------------------------
-
-def add_rdkit_initial_coords(data, fallback_counter=None, use_mmff=False):
-    from rdkit import Chem
-    from rdkit.Chem import AllChem
-
-    try:
-        smiles = data.smiles if hasattr(data, "smiles") else None
-        if smiles is None:
-            raise ValueError("no usable SMILES")
-
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            mol = Chem.MolFromSmiles(smiles, sanitize=False)
-            if mol is None:
-                raise ValueError("SMILES unparseable even without sanitization")
-            sanitize_flags = Chem.SanitizeFlags.SANITIZE_ALL ^ Chem.SanitizeFlags.SANITIZE_PROPERTIES
-            Chem.SanitizeMol(mol, sanitizeOps=sanitize_flags, catchErrors=True)
-
-        mol = Chem.AddHs(mol)
-        params = AllChem.ETKDGv3()
-        params.randomSeed = 0
-        if AllChem.EmbedMolecule(mol, params) != 0:
-            raise ValueError("embedding failed")
-        if use_mmff:
-            AllChem.MMFFOptimizeMolecule(mol)
-        conf = mol.GetConformer()
-        coords = torch.tensor(conf.GetPositions(), dtype=torch.float)
-        if coords.size(0) != data.z.size(0):
-            raise ValueError("atom count mismatch")
-        if not torch.isfinite(coords).all():
-            raise ValueError("RDKit produced non-finite coordinates")
-        if coords.abs().max() > 50.0:
-            raise ValueError(f"RDKit coords implausibly large: {coords.abs().max():.1f}")
-        data.pos_init = coords
-    except Exception:
-        data.pos_init = torch.randn(data.z.size(0), 3) * 0.1
-        if fallback_counter is not None:
-            fallback_counter.append(1)
-
-    return data
 
 
-# ----------------------------------------------------------------------
+
 # 5. TRAINING LOOP
-# ----------------------------------------------------------------------
-
 def train(root="./data/QM9", epochs=300, batch_size=32, lr=1e-3,
           hidden_dim=128, num_layers=6, subset_size=10000, device=None,
           checkpoint_path=None, noise_scale=1.5, num_pos_init_draws=4,
@@ -810,13 +741,7 @@ def train(root="./data/QM9", epochs=300, batch_size=32, lr=1e-3,
          + angle_loss_weight * bond_angle_loss
          + symmetry_break_weight * symmetry_break_loss
 
-    gpu_resident_dataset:
-      When True, moves train_set and val_set to `device` once at the
-      start of training and bypasses the DataLoader with a custom
-      iterator that produces Batch objects directly on device. This
-      removes the per-batch host-to-device transfer and DataLoader
-      overhead -- typically a 10-25% epoch speedup at this model size.
-      When False, uses the standard DataLoader + per-batch .to(device).
+
     """
     device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
     print(f"Using device: {device}")
@@ -1224,10 +1149,8 @@ def train(root="./data/QM9", epochs=300, batch_size=32, lr=1e-3,
     return model, (train_set, val_set, test_set), history
 
 
-# ----------------------------------------------------------------------
-# 6. ENTRY POINT
-# ----------------------------------------------------------------------
 
+# 6. ENTRY POINT
 def main():
     if CONFIG["run_tests"]:
         test_equivariance(max_disp=CONFIG["max_disp"])
