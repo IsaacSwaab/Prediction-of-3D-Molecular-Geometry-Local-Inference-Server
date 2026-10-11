@@ -63,7 +63,8 @@ print(f"  Device: {DEVICE}")
 
 model, cfg = load_model(CHECKPOINT_PATH, device=DEVICE, verbose=True)
 NOISE_SCALE = cfg["noise_scale"]
-DEFAULT_NUM_DRAWS = cfg["num_pos_init_draws"]
+# DEFAULT_NUM_DRAWS = cfg["num_pos_init_draws"]
+DEFAULT_NUM_DRAWS = 16
 
 
 
@@ -513,7 +514,7 @@ INDEX_HTML = """
         fetch('/predict_visual', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({smiles: smiles, num_draws: 8, visual_draw: mode}),
+            body: JSON.stringify({smiles: smiles, num_draws: 16, visual_draw: mode}),
         }).then(r => r.blob()).then(blob => {
             const url = URL.createObjectURL(blob);
             window.open(url, '_blank');
