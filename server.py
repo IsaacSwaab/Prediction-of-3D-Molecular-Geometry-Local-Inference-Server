@@ -55,10 +55,8 @@ PORT = int(os.environ.get("EGNN_PORT", "8000"))
 QM9_ROOT = os.environ.get("EGNN_QM9_ROOT", "./data/QM9")
 
 
-# ----------------------------------------------------------------------
-# Load the model once at import time
-# ----------------------------------------------------------------------
 
+# Load the model once
 print("Loading EGNN inference server")
 print(f"  Checkpoint: {CHECKPOINT_PATH}")
 print(f"  Device: {DEVICE}")
@@ -174,8 +172,6 @@ def _select_draw(aligned, visual_draw, z, edge_index, edge_attr):
 
 
 # FastAPI app
-
-
 app = FastAPI(
     title="EGNN QM9 Local Inference Server",
     description="Predict 3D molecular geometry from SMILES using a trained "
@@ -186,7 +182,6 @@ app = FastAPI(
 
 
 # Request/response schemas
-
 class PredictRequest(BaseModel):
     smiles: str = Field(..., description="SMILES string (H, C, N, O, F only)")
     num_draws: int = Field(DEFAULT_NUM_DRAWS, ge=1, le=32,
@@ -220,8 +215,6 @@ class PredictVisualRequest(BaseModel):
 
 
 # JSON endpoints
-
-
 @app.get("/health")
 def health():
     return {"status": "ok", "device": DEVICE}
@@ -319,8 +312,6 @@ def predict_draws(req: PredictVisualRequest):
 
 
 # Visual endpoints (return standalone interactive HTML)
-
-
 @app.post("/predict_visual", response_class=HTMLResponse)
 def predict_visual(req: PredictVisualRequest):
     """
@@ -416,9 +407,7 @@ def predict_visual_qm9(qm9_index: int, num_draws: int = DEFAULT_NUM_DRAWS):
     return HTMLResponse(figure_to_html(fig))
 
 
-# Minimal HTML front-end at /
-
-
+# Minimal HTML front-end
 INDEX_HTML = """
 <!DOCTYPE html>
 <html>
