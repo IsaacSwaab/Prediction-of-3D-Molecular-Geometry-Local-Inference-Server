@@ -48,7 +48,7 @@ from Util.rerank import select_best_draw, select_median_draw, quality_score
 # Configuration
 # ----------------------------------------------------------------------
 
-CHECKPOINT_PATH = os.environ.get("EGNN_CHECKPOINT", "./egnn_checkpoint_5A_96_8_Full_830.pt")
+CHECKPOINT_PATH = os.environ.get("EGNN_CHECKPOINT", "./egnn_checkpoint_5A_96_8_Full_1000.pt")
 DEVICE = os.environ.get("EGNN_DEVICE", "cuda" if torch.cuda.is_available() else "cpu")
 HOST = os.environ.get("EGNN_HOST", "127.0.0.1")
 PORT = int(os.environ.get("EGNN_PORT", "8000"))
